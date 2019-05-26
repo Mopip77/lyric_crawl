@@ -15,13 +15,16 @@ url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp?ct=24&qqmusic_ver=1298&
 cur_page = 1
 total_page = 0
 
-def get_lyrics(song_name, page=1):
+def get_lyrics(song_name, page=1, auto_select_first=False):
     os.system("clear")
     cur_page = page
     r = requests.get(url.format(page, song_name))
     doc = json.loads(r.text)
 
     if doc['data']['lyric']['curnum'] <= 0:
+        return
+    elif auto_select_first:
+        save_lyric(doc['data']['lyric']['list'][0]['content'])
         return
 
     total_page = int((doc['data']['lyric']['totalnum'] + 6) / 7)
@@ -50,17 +53,22 @@ def get_lyrics(song_name, page=1):
 
     i = int(getch())
     if 1 <= i <= cur_page_lyric_num:
-        os.system("clear")
-        lyric = song_infos[i-1]['content'].replace('<em>', '').replace('</em>', '')
-        lines = lyric.split('\\n')
-        with open(tmp_file, "w") as f:
-            f.write('\n'.join(lines))
+        save_lyric(song_infos[i-1]['content'])
     elif i == 9:
         get_lyrics(song_name, cur_page-1)
     elif i == 0:
         get_lyrics(song_name, cur_page+1)
 
+def save_lyric(lyric):
+    os.system("clear")
+    lyric = lyric.replace('<em>', '').replace('</em>', '')
+    lines = lyric.split('\\n')
+    with open(tmp_file, "w") as f:
+        f.write('\n'.join(lines))
+
 
 if __name__ == '__main__':
-   get_lyrics(sys.argv[1])
-   # get_lyrics("LOVE")
+    if sys.argv.__len__() > 2 and sys.argv[2] == '-f':
+        get_lyrics(sys.argv[1], auto_select_first=True)
+    else:
+        get_lyrics(sys.argv[1], auto_select_first=False)

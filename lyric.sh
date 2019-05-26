@@ -5,6 +5,14 @@
 
 # 没有参数默认读取正在播放的音乐app rhthymbox > audacious
 
+# 获取脚本文件夹路径
+curPath=$(cd `dirname $0`; pwd)
+if [ -L "$0" ]
+then
+	curPath=$(cd `dirname $(ls -l "$0" | awk '{print $NF}')`; pwd)
+fi
+
+# 获取歌曲名
 if [ $# -eq 0 ]
 then
   # rhthymbox
@@ -19,16 +27,11 @@ then
       exit
     fi
   fi
+  ${curPath}/spider.py "$song_name" -f  # 自动选择第一个
 else
-  song_name=$1
+  ${curPath}/spider.py "$1"
 fi
 
-curPath=$(cd `dirname $0`; pwd)
-if [ -L "$0" ]
-then
-	curPath=$(cd `dirname $(ls -l "$0" | awk '{print $NF}')`; pwd)
-fi
-${curPath}/spider.py "$song_name"
 if [ $? -eq 0 ]
 then
   less "/tmp/lyric.tmp"
