@@ -22,7 +22,8 @@ def get_lyrics(song_name, page=1, auto_select_first=False):
     doc = json.loads(r.text)
 
     if doc['data']['lyric']['curnum'] <= 0:
-        return
+        print("找不到相关歌词")
+        os._exit(1)
     elif auto_select_first:
         save_lyric(doc['data']['lyric']['list'][0]['content'])
         return
@@ -36,12 +37,15 @@ def get_lyrics(song_name, page=1, auto_select_first=False):
         # like <em>身骑白马</em> - 徐佳莹 (LALA Xu)\n 词：徐佳莹\n 曲：徐佳莹/苏通达\n
         # 就是关键词会使用em标签, 然后歌曲名和演唱者用 - 相连
         try:
-            title = song_info['lyric'].split('\\n')[0]
-            title = title.replace('<em>', '').replace('</em>', '')
-            name = re.findall('^(\w+) ', title)[0]
-            singer = re.findall('.*?- (.*?)$', title)[0]
+            # title = song_info['content'].split('\\n')[0]
+            # title = title.replace('<em>', '').replace('</em>', '')
+            # name = re.findall('^(\w+) ', title)[0]
+            # singer = re.findall('.*?- (.*?)$', title)[0]
+            name = song_info['songname']
+            singer = song_info['singer'][0]['name']
             print(FC.g("[{}]".format(idx+1)), name, FC.c(singer))
         except:
+            title = song_info['content'].split('\\n')[0]
             print(FC.g("[{}]".format(idx+1)), title, "[DEBUG]")
 
     navigator = ""
@@ -64,7 +68,10 @@ def save_lyric(lyric):
     lyric = lyric.replace('<em>', '').replace('</em>', '')
     lines = lyric.split('\\n')
     with open(tmp_file, "w") as f:
-        f.write('\n'.join(lines))
+        for idx, line in enumerate(lines):
+            f.write(line + '\n')
+            if idx > 0 and idx % 5 == 0:
+                f.write('\n')
 
 
 if __name__ == '__main__':

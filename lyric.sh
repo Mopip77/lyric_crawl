@@ -29,7 +29,7 @@ then
   fi
   ${curPath}/spider.py "$song_name" -f  # 自动选择第一个
 else
-  ${curPath}/spider.py "$1"
+  ${curPath}/spider.py "$*"
 fi
 
 if [ $? -eq 0 ]
